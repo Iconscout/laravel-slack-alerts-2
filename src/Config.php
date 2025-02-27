@@ -48,4 +48,15 @@ class Config
 
         return $queue;
     }
+
+    public static function getConnection(): string|null
+    {
+        $connection = config('slack-alerts.connection');
+
+        if (! $connection) {
+            return 'sync';
+        }
+
+        return $connection;
+    }
 }

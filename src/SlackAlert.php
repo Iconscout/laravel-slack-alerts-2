@@ -10,6 +10,8 @@ class SlackAlert
 
     protected ?string $queue = null;
 
+    protected ?string $connection = null;
+
     protected ?string $username = null;
 
     protected ?string $icon_url = null;
@@ -31,6 +33,13 @@ class SlackAlert
     public function onQueue(string $queue): self
     {
         $this->queue = $queue;
+
+        return $this;
+    }
+
+    public function onConnection(string $connection): self
+    {
+        $this->connection = $connection;
 
         return $this;
     }
@@ -66,7 +75,7 @@ class SlackAlert
         ]);
 
         dispatch(
-            $job->onQueue($this->queue ?? Config::getQueue())
+            $job->onConnection($this->connection ?? Config::getConnection())->onQueue($this->queue ?? Config::getQueue())
         );
     }
 
@@ -87,7 +96,7 @@ class SlackAlert
         ]);
 
         dispatch(
-            $job->onQueue($this->queue ?? Config::getQueue())
+            $job->onConnection($this->connection ?? Config::getConnection())->onQueue($this->queue ?? Config::getQueue())
         );
     }
 }

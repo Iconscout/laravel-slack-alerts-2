@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static self withUsername(string $text)
  * @method static self withIconURL(string $text)
  * @method static self onQueue(string $text)
+ * @method static self onConnection(string $text)
  *
  * @see \Spatie\SlackAlerts\SlackAlert
  */

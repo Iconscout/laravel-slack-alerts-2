@@ -13,5 +13,8 @@ return [
      * job to set timeouts, retries, etc...
      */
     'job' => Spatie\SlackAlerts\Jobs\SendToSlackChannelJob::class,
+
+    'connection' => env('SLACK_ALERT_CONNECTION', 'sync'),
+
     'queue' => env('SLACK_ALERT_QUEUE', 'default'),
 ];

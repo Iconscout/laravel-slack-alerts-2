@@ -23,10 +23,10 @@ it('can dispatch a job to send a set of blocks to slack using the default webhoo
 
     SlackAlert::blocks([
         [
-            "type" => "section",
-            "text" => [
-                "type" => "mrkdwn",
-                "text" => "Hello!",
+            'type' => 'section',
+            'text' => [
+                'type' => 'mrkdwn',
+                'text' => 'Hello!',
             ],
         ],
     ]);
@@ -91,7 +91,7 @@ it('can send a message via a queue set in config file ', function (string $queue
 
     Bus::assertDispatched(SendToSlackChannelJob::class);
 })->with([
-    'default', 'my-queue',
+    'my-queue'
 ]);
 
 it('can send a message via a queue set at runtime ', function (string $queue) {
@@ -100,9 +100,11 @@ it('can send a message via a queue set at runtime ', function (string $queue) {
 
     SlackAlert::onQueue($queue)->message('test-data');
 
-    Bus::assertDispatched(SendToSlackChannelJob::class);
+    Bus::assertDispatched(function (SendToSlackChannelJob $job) use ($queue) {
+        return $job->queue === $queue && $job->queue !== 'custom-queue';
+    });
 })->with([
-    'default', 'my-queue',
+    'my-queue-123'
 ]);
 
 it('can send a message via a username set at runtime ', function () {
@@ -131,7 +133,7 @@ it('can send a message via a connection set in config file ', function (string $
         return $job->connection === $connection;
     });
 })->with([
-    'default', 'my-connection',
+    'my-connection'
 ]);
 
 it('can send a message via a connection set at runtime ', function (string $connection) {
@@ -144,5 +146,15 @@ it('can send a message via a connection set at runtime ', function (string $conn
         return $job->connection === $connection && $job->connection !== 'custom-connection';
     });
 })->with([
-    'default', 'my-connection-2',
+    'my-connection-2'
 ]);
+
+it('can send a message via a connection sync (default connection if not set) ', function () {
+    config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
+
+    SlackAlert::message('test-data');
+
+    Bus::assertDispatched(function (SendToSlackChannelJob $job) {
+        return $job->connection === 'sync';
+    });
+});

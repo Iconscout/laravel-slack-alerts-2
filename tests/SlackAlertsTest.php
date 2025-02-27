@@ -120,3 +120,29 @@ it('can send a message via a icon_url set at runtime ', function () {
 
     Bus::assertDispatched(SendToSlackChannelJob::class);
 });
+
+it('can send a message via a connection set in config file ', function (string $connection) {
+    config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
+    config()->set('slack-alerts.connection', $connection);
+
+    SlackAlert::message('test-data');
+
+    Bus::assertDispatched(function (SendToSlackChannelJob $job) use ($connection) {
+        return $job->connection === $connection;
+    });
+})->with([
+    'default', 'my-connection',
+]);
+
+it('can send a message via a connection set at runtime ', function (string $connection) {
+    config()->set('slack-alerts.webhook_urls.default', 'https://test-domain.com');
+    config()->set('slack-alerts.connection', 'custom-connection');
+
+    SlackAlert::onConnection($connection)->message('test-data');
+
+    Bus::assertDispatched(function (SendToSlackChannelJob $job) use ($connection) {
+        return $job->connection === $connection && $job->connection !== 'custom-connection';
+    });
+})->with([
+    'default', 'my-connection-2',
+]);
